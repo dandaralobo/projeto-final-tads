@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Megan - Aluguel de Veículos</title>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto&amp;display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar" style="background-color: #435d7d; margin-bottom: 24px;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/" style="color: #fff;">
+            <i class="fa fa-car fa-lg"></i>
+            Megan - Aluguel de Veículos
+        </a>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#cadastrar">
+            <i class="fa fa-plus fa-lg"></i>
+            Cadastrar veículo
+        </button>
+    </div>
+</nav>
+
+
+<!-- Modal -->
+<div class="modal fade" id="cadastrar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="cadastrarLabel">Cadastrar veículo</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{url_for('cadastrar')}}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="inputPlaca" class="form-label">Placa</label>
+                        <input type="text" class="form-control" id="inputPlaca"
+                               placeholder="XXX-XXXX" name="placa">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="selectCor" class="form-label">Cor</label>
+                        <select class="form-select" aria-label="Escolha da cor do veículo" id="selectCor" name="cor">
+                            <option selected>Escolha uma cor...</option>
+                            <option value="Preto">Preto</option>
+                            <option value="Cinza">Cinza</option>
+                            <option value="Vermelho">Vermelho</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="inputAno" class="form-label">Ano</label>
+                        <input type="number" class="form-control" id="inputAno" name="ano" min="2000" max="2024" value="2024">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="selectModelo" class="form-label">Modelo</label>
+                        <select class="form-select" aria-label="Escolha do modelo do veículo" id="selectModelo"
+                                name="modelo">
+                            <option selected>Escolha um modelo...</option>
+                            {% for modelo in modelos %}
+                            <option value="{{ modelo.id }}">{{ modelo.modelo }} ({{ modelo.marca }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div style="display: flex; padding: 0 24px; gap: 24px; justify-content: center">
+    {% for total in totais %}
+
+    {% if total.status == "DISPONÍVEL" %}
+    <div class="card text-white bg-success mb-3 text-center" style="flex: 1;">
+        {% endif %}
+
+        {% if total.status == "ALUGADO" %}
+        <div class="card text-black mb-3 text-center" style="flex: 1; background-color: #FEBE10">
+            {% endif %}
+
+            {% if total.status == "REPARO" %}
+            <div class="card text-white bg-danger mb-3 text-center" style="flex: 1;">
+                {% endif %}
+
+                <div class="card-body">
+                    <h4 class="card-title">{{ total.status }}</h4>
+                    <h2>{{ total.quantidade }}</h2>
+                </div>
+            </div>
+
+            {% endfor %}
+
+            <div class="card text-white bg-primary mb-3 text-center" style="flex: 1;">
+                <div class="card-body">
+                    <h4 class="card-title">TOTAL</h4>
+                    <h2>{{ totais|sum(attribute='quantidade') }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 0 24px;">
+            {% if veiculos|length > 0 %}
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Cor</th>
+                    <th scope="col">Ano</th>
+                    <th scope="col">Modelo</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for veiculo in veiculos %}
+                <tr>
+                    <th scope="row">{{ veiculo.id }}</th>
+                    <th>{{ veiculo.placa }}</th>
+                    <td>{{ veiculo.cor }}</td>
+                    <td>{{ veiculo.ano }}</td>
+                    <td>{{ veiculo.modelo }}</td>
+                    <td>{{ veiculo.marca }}</td>
+                    <td>
+                        {% if veiculo.status == 1 %}
+                        <span class="badge bg-success">{{ veiculo.status_descricao }}</span>
+                        {% endif %}
+                        {% if veiculo.status == 2 %}
+                        <span class="badge bg-warning">{{ veiculo.status_descricao }}</span>
+                        {% endif %}
+                        {% if veiculo.status == 3 %}
+                        <span class="badge bg-danger">{{ veiculo.status_descricao }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Action buttons">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#detalhes-veiculo-{{ veiculo.id }}">
+                                <i class="fa fa-eye fa-lg"></i>
+                            </button>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#editar-veiculo-{{ veiculo.id }}">
+                                <i class="fa fa-pencil fa-lg"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#excluir-veiculo-{{ veiculo.id }}">
+                                <i class="fa fa-trash fa-lg"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                <div class="modal fade" id="detalhes-veiculo-{{ veiculo.id }}" tabindex="-1"
+                     aria-labelledby="detalhes-veiculo-{{ veiculo.id }}-label"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="detalhes-veiculo-{{ veiculo.id }}-label">Detalhes do
+                                    veículo #{{ veiculo.id
+                                    }}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Placa: <b>{{ veiculo.placa }}</b></p>
+                                <p>Cor: <b>{{ veiculo.cor }}</b></p>
+                                <p>Ano: <b>{{ veiculo.ano }}</b></p>
+                                <p>Modelo: <b>{{ veiculo.modelo }}</b></p>
+                                <p>Marca: <b>{{ veiculo.marca }}</b></p>
+                                <p>Status: <b>{{ veiculo.status_descricao }}</b></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="excluir-veiculo-{{ veiculo.id }}" tabindex="-1"
+                     aria-labelledby="excluir-veiculo-{{ veiculo.id }}-label"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="excluir-veiculo-{{ veiculo.id }}-label">Excluir o
+                                    veículo #{{ veiculo.id }}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <form action="{{ url_for('excluir', id=veiculo.id ) }}" method="post">
+                                <div class="modal-body">
+                                    <p>Tem certeza que deseja excluir o veículo #{{ veiculo.id }}?</p>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar
+                                    </button>
+                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="editar-veiculo-{{ veiculo.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="editarLabel">Editar veículo #{{ veiculo.id }}</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <form action="{{url_for('atualizar', id=veiculo.id )}}" method="post">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="inputPlacaEditar" class="form-label">Placa</label>
+                                        <input type="text" class="form-control" id="inputPlacaEditar"
+                                               placeholder="XXX-XXXX" name="placa" value="{{ veiculo.placa }}">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="selectCorEditar" class="form-label">Cor</label>
+                                        <select class="form-select" aria-label="Escolha da cor do veículo"
+                                                id="selectCorEditar" name="cor">
+                                            <option>Escolha uma cor...</option>
+                                            <option value="Preto" {% if veiculo.cor =="Preto" %} selected {% endif %}>Preto</option>
+                                            <option value="Cinza" {% if veiculo.cor =="Cinza" %} selected {% endif %}>Cinza</option>
+                                            <option value="Vermelho" {% if veiculo.cor =="Vermelho" %} selected {% endif %}>Vermelho</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="inputAnoEditar" class="form-label">Ano</label>
+                                        <input type="number" class="form-control"  id="inputAnoEditar" name="ano" min="2000" max="2024" value="{{ veiculo.ano }}">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="selectModeloEditar" class="form-label">Modelo</label>
+                                        <select class="form-select" aria-label="Escolha do modelo do veículo"
+                                                id="selectModeloEditar" name="modelo">
+                                            <option>Escolha um modelo...</option>
+                                            {% for modelo in modelos %}
+                                            <option value="{{ modelo.id }}" {% if veiculo.id_modelo == modelo.id %} selected {% endif %}>{{ modelo.modelo }} ({{ modelo.marca }})
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="selectStatusEditar" class="form-label">Status</label>
+                                        <select class="form-select" aria-label="Escolha da status do veículo"
+                                                id="selectStatusEditar" name="status">
+                                            <option>Escolha um status...</option>
+                                            <option value="1" {% if veiculo.status == 1 %} selected {% endif %}>DISPONÍVEL</option>
+                                            <option value="2" {% if veiculo.status == 2 %} selected {% endif %}>ALUGADO</option>
+                                            <option value="3" {% if veiculo.status == 3 %} selected {% endif %}>REPARO</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">Salvar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="card text-center mt-1">
+                <div class="card-body">
+                    Nenhum veículo cadastrado
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="container">
+            <footer class="py-3 my-4">
+                <p class="text-center text-muted">© 2024 Desenvolvido por Dandara Lobo</p>
+            </footer>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
+
+        <script>
+            inputAno = document.getElementById('inputAno');
+            inputAno.value = new Date().getFullYear()
+        </script>
+</body>
+</html>
